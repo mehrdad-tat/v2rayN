@@ -690,6 +690,103 @@ public class ProfilesViewModel : MyReactiveObject
         NoticeManager.Instance.Enqueue(string.Format(ResUI.RemoveInvalidServerResultTip, count));
     }
 
+    public async Task<bool> SelectBestServerByDelayAsync()
+    {
+        try
+        {
+            var lstProfileExs = await ProfileExManager.Instance.GetProfileExs();
+            var lstProfiles = await AppManager.Instance.ProfileItems(_config.SubIndexId);
+
+            if (lstProfiles == null || lstProfiles.Count == 0)
+            {
+                return false;
+            }
+
+            var validProfiles = (from p in lstProfiles
+                                 join ex in lstProfileExs on p.IndexId equals ex.IndexId
+                                 where ex.Delay > 0
+                                 orderby ex.Delay ascending
+                                 select new { p.IndexId, ex.Delay }).ToList();
+
+            if (validProfiles.Count == 0)
+            {
+                Logging.SaveLog("SelectBestServerByDelay: No valid profiles with positive delay found");
+                return false;
+            }
+
+            var bestProfile = validProfiles.First();
+            Logging.SaveLog($"SelectBestServerByDelay: Selected server with delay {bestProfile.Delay}ms");
+
+            if (bestProfile.IndexId == _config.IndexId)
+            {
+                return true;
+            }
+
+            if (await ConfigHandler.SetDefaultServerIndex(_config, bestProfile.IndexId) == 0)
+            {
+                await RefreshServers();
+                Reload();
+                NoticeManager.Instance.Enqueue($"Auto-selected best server (Delay: {bestProfile.Delay}ms)");
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("SelectBestServerByDelay", ex);
+        }
+        return false;
+    }
+
+    public async Task AutoTestAndCleanupAsync()
+    {
+        try
+        {
+            Logging.SaveLog("AutoTestAndCleanup: Starting auto test");
+
+            var lstSelected = await AppManager.Instance.ProfileItems(_config.SubIndexId);
+            if (lstSelected == null || lstSelected.Count == 0)
+            {
+                Logging.SaveLog("AutoTestAndCleanup: No profiles to test");
+                return;
+            }
+
+            NoticeManager.Instance.SendMessageEx($"Auto-testing {lstSelected.Count} servers...");
+
+            var speedtestService = new SpeedtestService(_config, async (SpeedTestResult result) =>
+            {
+                await SetSpeedTestResult(result);
+            });
+
+            await speedtestService.RunLoopAsync(ESpeedActionType.Mixedtest, lstSelected);
+
+            Logging.SaveLog("AutoTestAndCleanup: Test completed, removing invalid servers");
+
+            var autoConfig = _config.AutoConfigItem;
+            if (autoConfig?.RemoveInvalidAfterTest == true)
+            {
+                var count = await ConfigHandler.RemoveInvalidServerResult(_config, _config.SubIndexId);
+                if (count > 0)
+                {
+                    Logging.SaveLog($"AutoTestAndCleanup: Removed {count} invalid servers");
+                    NoticeManager.Instance.SendMessageEx($"Removed {count} invalid servers");
+                }
+            }
+
+            await RefreshServers();
+
+            if (autoConfig?.SelectBestAfterTest == true)
+            {
+                await SelectBestServerByDelayAsync();
+            }
+
+            Logging.SaveLog("AutoTestAndCleanup: Completed");
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("AutoTestAndCleanup", ex);
+        }
+    }
+
     //move server
     private async Task MoveToGroup(bool c)
     {

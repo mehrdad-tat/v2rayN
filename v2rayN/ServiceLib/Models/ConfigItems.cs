@@ -271,3 +271,14 @@ public class SimpleDNSItem
     public string? Hosts { get; set; }
     public string? DirectExpectedIPs { get; set; }
 }
+
+[Serializable]
+public class AutoConfigItem
+{
+    public bool Enabled { get; set; }
+    public string? Url { get; set; }
+    public int IntervalMinutes { get; set; } = 10;
+    public bool TestAfterImport { get; set; } = true;
+    public bool RemoveInvalidAfterTest { get; set; } = true;
+    public bool SelectBestAfterTest { get; set; } = true;
+}
