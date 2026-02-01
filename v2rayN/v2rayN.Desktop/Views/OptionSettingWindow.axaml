@@ -982,6 +982,101 @@
                         Margin="{StaticResource Margin4}" />
                 </Grid>
             </TabItem>
+
+            <TabItem Header="Auto Config">
+                <Grid
+                    Margin="{StaticResource Margin4}"
+                    ColumnDefinitions="Auto,Auto,*"
+                    RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Enable Auto Config" />
+                    <ToggleSwitch
+                        x:Name="togAutoConfigEnabled"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Config URL" />
+                    <TextBox
+                        x:Name="txtAutoConfigUrl"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="500"
+                        Margin="{StaticResource Margin4}" />
+
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Interval (minutes)" />
+                    <TextBox
+                        x:Name="txtAutoConfigInterval"
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Width="100"
+                        Margin="{StaticResource Margin4}" />
+
+                    <TextBlock
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Test After Import" />
+                    <ToggleSwitch
+                        x:Name="togAutoConfigTestAfterImport"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left" />
+
+                    <TextBlock
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Remove Invalid After Test" />
+                    <ToggleSwitch
+                        x:Name="togAutoConfigRemoveInvalid"
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left" />
+
+                    <TextBlock
+                        Grid.Row="5"
+                        Grid.Column="0"
+                        Margin="{StaticResource Margin4}"
+                        VerticalAlignment="Center"
+                        Text="Select Best After Test" />
+                    <ToggleSwitch
+                        x:Name="togAutoConfigSelectBest"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Margin="{StaticResource Margin4}"
+                        HorizontalAlignment="Left" />
+
+                    <TextBlock
+                        Grid.Row="6"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="3"
+                        Margin="{StaticResource Margin4}"
+                        Foreground="Gray"
+                        Text="Configs will be fetched from the URL automatically and tested. Invalid configs will be removed and the best server will be selected."
+                        TextWrapping="Wrap" />
+                </Grid>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </Window>

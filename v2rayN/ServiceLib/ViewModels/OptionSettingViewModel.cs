@@ -100,6 +100,17 @@ public class OptionSettingViewModel : MyReactiveObject
 
     #endregion Tun mode
 
+    #region AutoConfig
+
+    [Reactive] public bool AutoConfigEnabled { get; set; }
+    [Reactive] public string AutoConfigUrl { get; set; }
+    [Reactive] public int AutoConfigInterval { get; set; }
+    [Reactive] public bool AutoConfigTestAfterImport { get; set; }
+    [Reactive] public bool AutoConfigRemoveInvalid { get; set; }
+    [Reactive] public bool AutoConfigSelectBest { get; set; }
+
+    #endregion AutoConfig
+
     #region CoreType
 
     [Reactive] public string CoreType1 { get; set; }
@@ -224,6 +235,17 @@ public class OptionSettingViewModel : MyReactiveObject
         TunEnableIPv6Address = _config.TunModeItem.EnableIPv6Address;
 
         #endregion Tun mode
+
+        #region AutoConfig
+
+        AutoConfigEnabled = _config.AutoConfigItem?.Enabled ?? false;
+        AutoConfigUrl = _config.AutoConfigItem?.Url ?? string.Empty;
+        AutoConfigInterval = _config.AutoConfigItem?.IntervalMinutes ?? 10;
+        AutoConfigTestAfterImport = _config.AutoConfigItem?.TestAfterImport ?? true;
+        AutoConfigRemoveInvalid = _config.AutoConfigItem?.RemoveInvalidAfterTest ?? true;
+        AutoConfigSelectBest = _config.AutoConfigItem?.SelectBestAfterTest ?? true;
+
+        #endregion AutoConfig
 
         await InitCoreType();
     }
@@ -382,6 +404,15 @@ public class OptionSettingViewModel : MyReactiveObject
         _config.TunModeItem.Mtu = TunMtu;
         _config.TunModeItem.EnableExInbound = TunEnableExInbound;
         _config.TunModeItem.EnableIPv6Address = TunEnableIPv6Address;
+
+        //autoConfig
+        _config.AutoConfigItem ??= new();
+        _config.AutoConfigItem.Enabled = AutoConfigEnabled;
+        _config.AutoConfigItem.Url = AutoConfigUrl;
+        _config.AutoConfigItem.IntervalMinutes = AutoConfigInterval;
+        _config.AutoConfigItem.TestAfterImport = AutoConfigTestAfterImport;
+        _config.AutoConfigItem.RemoveInvalidAfterTest = AutoConfigRemoveInvalid;
+        _config.AutoConfigItem.SelectBestAfterTest = AutoConfigSelectBest;
 
         //coreType
         await SaveCoreType();

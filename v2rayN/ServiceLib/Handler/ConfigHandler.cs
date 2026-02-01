@@ -163,6 +163,16 @@ public static class ConfigHandler
         };
         config.GlobalHotkeys ??= new();
 
+        config.AutoConfigItem ??= new()
+        {
+            Enabled = true,
+            Url = "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
+            IntervalMinutes = 10,
+            TestAfterImport = true,
+            RemoveInvalidAfterTest = true,
+            SelectBestAfterTest = true
+        };
+
         if (config.SystemProxyItem.SystemProxyExceptions.IsNullOrEmpty())
         {
             config.SystemProxyItem.SystemProxyExceptions = Utils.IsWindows() ? Global.SystemProxyExceptionsWindows : Global.SystemProxyExceptionsLinux;

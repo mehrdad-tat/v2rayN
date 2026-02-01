@@ -16,9 +16,17 @@ public class AutoConfigWorkflowService
     public async Task RunWorkflowAsync()
     {
         var autoConfig = _config.AutoConfigItem;
+
+        // Debug logging
+        Logging.SaveLog($"{_tag}: AutoConfigItem is null: {autoConfig == null}");
+        if (autoConfig != null)
+        {
+            Logging.SaveLog($"{_tag}: Enabled={autoConfig.Enabled}, Url={autoConfig.Url ?? "NULL"}");
+        }
+
         if (autoConfig == null || !autoConfig.Enabled || autoConfig.Url.IsNullOrEmpty())
         {
-            Logging.SaveLog($"{_tag}: Auto config is disabled or URL is empty");
+            Logging.SaveLog($"{_tag}: Auto config is disabled or URL is empty - SKIPPING");
             return;
         }
 

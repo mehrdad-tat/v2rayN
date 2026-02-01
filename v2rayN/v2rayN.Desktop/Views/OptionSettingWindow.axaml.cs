@@ -126,6 +126,13 @@ public partial class OptionSettingWindow : WindowBase<OptionSettingViewModel>
             this.Bind(ViewModel, vm => vm.CoreType7, v => v.cmbCoreType7.SelectedValue).DisposeWith(disposables);
             this.Bind(ViewModel, vm => vm.CoreType9, v => v.cmbCoreType9.SelectedValue).DisposeWith(disposables);
 
+            this.Bind(ViewModel, vm => vm.AutoConfigEnabled, v => v.togAutoConfigEnabled.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AutoConfigUrl, v => v.txtAutoConfigUrl.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AutoConfigInterval, v => v.txtAutoConfigInterval.Text).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AutoConfigTestAfterImport, v => v.togAutoConfigTestAfterImport.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AutoConfigRemoveInvalid, v => v.togAutoConfigRemoveInvalid.IsChecked).DisposeWith(disposables);
+            this.Bind(ViewModel, vm => vm.AutoConfigSelectBest, v => v.togAutoConfigSelectBest.IsChecked).DisposeWith(disposables);
+
             this.BindCommand(ViewModel, vm => vm.SaveCmd, v => v.btnSave).DisposeWith(disposables);
         });
     }
