@@ -246,6 +246,10 @@ public class MainWindowViewModel : MyReactiveObject
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(async blProxy => await UpdateSubscriptionProcess("", blProxy));
 
+        AppEvents.AutoConfigWorkflowRequested
+            .AsObservable()
+            .Subscribe(async _ => await RunAutoConfigWorkflowAsync());
+
         #endregion AppEvents
 
         _ = Init();
@@ -270,6 +274,13 @@ public class MainWindowViewModel : MyReactiveObject
         await RefreshServers();
 
         await Reload();
+
+        // Run auto config workflow at startup (with delay to let UI load)
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(5000);
+            await RunAutoConfigWorkflowAsync();
+        });
     }
 
     #endregion Init
@@ -435,6 +446,53 @@ public class MainWindowViewModel : MyReactiveObject
                 NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
             }
         }
+    }
+
+    public async Task<int> AutoImportConfigsAsync()
+    {
+        var autoConfig = _config.AutoConfigItem;
+        if (autoConfig == null || !autoConfig.Enabled || autoConfig.Url.IsNullOrEmpty())
+        {
+            return 0;
+        }
+
+        try
+        {
+            Logging.SaveLog("AutoImportConfigs: Starting auto config import");
+
+            var fetcherService = new AutoConfigFetcherService(_config);
+            var newConfigs = await fetcherService.GetNewConfigsOnlyAsync(autoConfig.Url, false);
+
+            if (newConfigs.IsNullOrEmpty())
+            {
+                Logging.SaveLog("AutoImportConfigs: No new configs to import");
+                return 0;
+            }
+
+            var ret = await ConfigHandler.AddBatchServers(_config, newConfigs, _config.SubIndexId, false);
+            if (ret > 0)
+            {
+                RefreshSubscriptions();
+                await RefreshServers();
+                Logging.SaveLog($"AutoImportConfigs: Successfully imported {ret} new servers");
+                NoticeManager.Instance.SendMessageEx($"Auto-imported {ret} new servers");
+            }
+            return ret;
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("AutoImportConfigs", ex);
+            return 0;
+        }
+    }
+
+    public async Task RunAutoConfigWorkflowAsync()
+    {
+        await Task.Run(async () =>
+        {
+            var workflowService = new AutoConfigWorkflowService(_config);
+            await workflowService.RunWorkflowAsync();
+        });
     }
 
     #endregion Add Servers

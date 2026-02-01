@@ -35,6 +35,19 @@ public class TaskManager
                 Logging.SaveLog("ScheduledTasks - UpdateTaskRunSubscription", ex);
             }
 
+            //Execute once 10 minute - Auto config workflow
+            if (numOfExecuted % 10 == 0)
+            {
+                try
+                {
+                    await UpdateTaskRunAutoConfig();
+                }
+                catch (Exception ex)
+                {
+                    Logging.SaveLog("ScheduledTasks - AutoConfig", ex);
+                }
+            }
+
             //Execute once 20 minute
             if (numOfExecuted % 20 == 0)
             {
@@ -116,5 +129,19 @@ public class TaskManager
                 await _updateFunc?.Invoke(false, msg);
             }).UpdateGeoFileAll();
         }
+    }
+
+    private async Task UpdateTaskRunAutoConfig()
+    {
+        var autoConfig = _config.AutoConfigItem;
+        if (autoConfig == null || !autoConfig.Enabled || autoConfig.Url.IsNullOrEmpty())
+        {
+            return;
+        }
+
+        Logging.SaveLog("Execute auto config workflow");
+        AppEvents.AutoConfigWorkflowRequested.Publish();
+
+        await Task.CompletedTask;
     }
 }
